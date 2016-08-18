@@ -1,0 +1,43 @@
+#!/bin/bash
+
+set -e
+
+if [ -e "${PWFILE}" ];then
+	AUTH_DIRECTIVE="
+	AuthType Basic
+	AuthName Restricted
+	AuthUserFile ${PWFILE}
+	Require valid-user
+"
+else
+	AUTH_DIRECTIVE="
+	Require all granted
+"
+fi
+
+sed -e 's!^\(ErrorLog\s\+\).*$!\1 /dev/stderr!' -i /etc/apache2/apache2.conf
+
+install -d -o ${APP_USER} -g ${APP_USER} /var/run/apache2/ /var/lock/apache2
+
+export APACHE_LOCK_DIR=/var/lock/apache2
+export APACHE_PID_FILE=/var/run/apache2.pid
+export APACHE_RUN_USER="${APP_USER}"
+export APACHE_RUN_GROUP="${APP_USER}"
+
+cat >/etc/apache2/sites-available/99-webdav.conf <<EOF
+Alias / ${APP_HOME}/
+CustomLog /dev/stdout combined
+
+<Directory ${APP_HOME}>
+	Options +Indexes
+	DAV On
+	${AUTH_DIRECTIVE}
+</Directory>
+EOF
+
+a2disconf localized-error-pages other-vhosts-access-log serve-cgi-bin security charset
+a2dismod dir setenvif -f
+a2dissite 000-default
+
+a2enmod dav_fs dav_lock
+a2ensite 99-webdav

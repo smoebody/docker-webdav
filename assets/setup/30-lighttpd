@@ -1,0 +1,45 @@
+#!/bin/bash
+
+if [ -e "${PWFILE}" ];then
+	AUTH_DIRECTIVE="
+	auth.backend = \"htpasswd\"
+	auth.backend.htpasswd.userfile = \"${PWFILE}\"
+	auth.require = ( \"\" => ( \"method\" => \"basic\",
+		\"realm\" => \"Restricted\",
+		\"require\" => \"valid-user\" )
+	)"
+fi
+
+install -d -o ${APP_USER} -g ${APP_USER} /var/run/lighttpd /var/cache/lighttpd/compress
+
+cat >/etc/lighttpd.conf <<EOF
+server.modules = (
+	"mod_access",
+	"mod_alias",
+	"mod_compress",
+	"mod_redirect",
+	"mod_webdav",
+	"mod_auth"
+)
+
+server.document-root = "${APP_HOME}"
+server.errorlog = "/dev/stderr"
+server.username = "${APP_USER}"
+server.groupname = "${APP_USER}"
+server.port = 80
+server.dir-listing = "enable"
+dir-listing.encoding = "utf-8"
+
+compress.cache-dir = "/var/cache/lighttpd/compress/"
+compress.filetype = ( "application/javascript", "text/css", "text/html", "text/plain" )
+webdav.sqlite-db-name = "/var/run/lighttpd/lighttpd.webdav_lock.db"
+
+include_shell "/usr/share/lighttpd/create-mime.assign.pl"
+
+${AUTH_DIRECTIVE}
+
+\$HTTP["url"] =~ "^/" {
+	webdav.activate = "enable"
+	webdav.is-readonly = "disable"
+}
+EOF
