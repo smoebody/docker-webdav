@@ -3,14 +3,14 @@
 set -e
 
 if [ -e "${PWFILE}" ];then
-	AUTH_DIRECTIVE="
+	APACHE_AUTH_DIRECTIVE="
 	AuthType Basic
 	AuthName Restricted
 	AuthUserFile ${PWFILE}
 	Require valid-user
 "
 else
-	AUTH_DIRECTIVE="
+	APACHE_AUTH_DIRECTIVE="
 	Require all granted
 "
 fi
@@ -31,7 +31,7 @@ CustomLog /dev/stdout combined
 <Directory ${APP_HOME}>
 	Options +Indexes
 	DAV On
-	${AUTH_DIRECTIVE}
+	${APACHE_AUTH_DIRECTIVE}
 </Directory>
 EOF
 

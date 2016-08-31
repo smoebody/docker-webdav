@@ -3,7 +3,7 @@
 set -e
 
 if [ -e "${PWFILE}" ];then
-	AUTH_DIRECTIVE="
+	NGINX_AUTH_DIRECTIVE="
 	auth_basic \"Restricted\";
 	auth_basic_user_file \"${PWFILE}\";
 "
@@ -42,7 +42,7 @@ http {
 
 		client_max_body_size ${CLIENT_MAX_BODY_SIZE};
 
-		$AUTH_DIRECTIVE
+		${NGINX_AUTH_DIRECTIVE}
 
 		location / {
 			dav_methods PUT DELETE MKCOL COPY MOVE;

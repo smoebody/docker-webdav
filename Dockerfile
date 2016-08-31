@@ -12,7 +12,9 @@ RUN apt-get update \
 ENV APP_USER=app \
  APP_HOME=/app \
  CLIENT_MAX_BODY_SIZE=500M \
- PWFILE=/etc/htpasswd
+ PWFILE=/etc/htpasswd \
+ HTUSER="" \
+ HTPASSWORD=""
 
 
 COPY assets/build /docker/build
