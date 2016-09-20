@@ -17,12 +17,16 @@ fi
 
 sed -e 's!^\(ErrorLog\s\+\).*$!\1 /dev/stderr!' -i /etc/apache2/apache2.conf
 
-install -d -o ${APP_USER} -g ${APP_USER} /var/run/apache2/ /var/lock/apache2
+install -d /var/run/apache2
+install -d -o ${APP_USER} /var/lock/apache2
 
 export APACHE_LOCK_DIR=/var/lock/apache2
 export APACHE_PID_FILE=/var/run/apache2.pid
-export APACHE_RUN_USER="${APP_USER}"
-export APACHE_RUN_GROUP="${APP_USER}"
+export APACHE_RUN_USER=${APP_USER}
+export APACHE_RUN_GROUP=${APP_USER}
+export APACHE_RUN_DIR=/var/run/apache2
+
+test -e /var/run/apache2.pid && rm /var/run/apache2.pid
 
 cat >/etc/apache2/sites-available/99-webdav.conf <<EOF
 Alias / ${APP_HOME}/

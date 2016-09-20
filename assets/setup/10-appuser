@@ -1,19 +1,15 @@
 #!/bin/bash
 
-if ! id ${APP_USER} &>/dev/null; then
-
-	# create user
-	useradd --create-home --home-dir /home/${APP_USER} -G root --shell /bin/bash ${APP_USER}
-
-	# set environment variables
-	cat >>/home/${APP_USER}/.profile <<EOF
 export LANG=de_DE.UTF-8
 export LANGUAGE=de_DE.UTF-8
 export LC_ALL=de_DE.UTF-8
-EOF
 
-	if [ -S "/ssh-agent" ]; then
-		echo "export SSH_AUTH_SOCK=/ssh-agent" >>/home/${APP_USER}/.profile
-	fi
+if [ -S "/ssh-agent" ]; then
+	echo export SSH_AUTH_SOCK=/ssh-agent
+fi
+
+if ! id ${APP_USER} &>/dev/null; then
+	# create user
+	useradd --create-home --home-dir /home/${APP_USER} -G root --shell /bin/bash ${APP_USER}
 fi;
 

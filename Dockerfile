@@ -2,7 +2,7 @@ FROM debian:jessie
 MAINTAINER ulf.seltmann@metaccount.de
 EXPOSE 80 443
 VOLUME ["/app"]
-ENTRYPOINT ["/docker/init"]
+ENTRYPOINT ["/docker/entrypoint"]
 CMD ["run"]
 
 RUN apt-get update \
@@ -16,11 +16,12 @@ ENV APP_USER=app \
  HTUSER="" \
  HTPASSWORD=""
 
-
+COPY assets/init /docker/init
 COPY assets/build /docker/build
-RUN chmod 755 /docker/build/init \
- && /docker/build/init
+RUN chmod 755 /docker/init \
+ && /docker/init \
+ && rm -rf /docker/build
 
 COPY assets/setup /docker/setup
-COPY assets/init /docker/init
-RUN chmod 755 /docker/init
+COPY assets/entrypoint /docker/entrypoint
+RUN chmod 755 /docker/entrypoint
